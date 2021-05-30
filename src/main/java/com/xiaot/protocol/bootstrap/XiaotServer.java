@@ -14,6 +14,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.util.ResourceLeakDetector;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.TimeUnit;
@@ -67,6 +68,7 @@ public class XiaotServer {
                         ;
                     }
                 });
+        ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
         bootstrap.bind(port).sync();
         log.info("Xiaot Server Start on port: " + port);
     }

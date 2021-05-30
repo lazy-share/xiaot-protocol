@@ -24,7 +24,7 @@ public class XiaotClientExample {
             public void run() {
                 while (true){
                     try {
-                        TimeUnit.MILLISECONDS.sleep(500);
+                        TimeUnit.MILLISECONDS.sleep(5);
                         client.sendMessage("zhangsan sayHello .................................", null);
                     }catch (Exception e){
                        log.error(e.getMessage(), e);
@@ -38,7 +38,7 @@ public class XiaotClientExample {
             public void run() {
                 while (true){
                     try {
-                        TimeUnit.MILLISECONDS.sleep(700);
+                        TimeUnit.MILLISECONDS.sleep(7);
                         client.sendMessage("wangwu sayHello .................................", null);
                     }catch (Exception e){
                         log.error(e.getMessage(), e);
@@ -53,7 +53,7 @@ public class XiaotClientExample {
             public void run() {
                 while (true){
                     try {
-                        TimeUnit.MILLISECONDS.sleep(200);
+                        TimeUnit.MILLISECONDS.sleep(2);
                         client.sendMessage("zhaoliu sayHello .................................", null);
                     }catch (Exception e){
                         log.error(e.getMessage(), e);

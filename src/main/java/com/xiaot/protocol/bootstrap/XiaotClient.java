@@ -15,6 +15,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.util.ResourceLeakDetector;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -88,6 +89,7 @@ public class XiaotClient {
                             ;
                         }
                     });
+            ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
             ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port)).sync();
             future.channel().closeFuture().sync();
         } catch (Exception e) {
