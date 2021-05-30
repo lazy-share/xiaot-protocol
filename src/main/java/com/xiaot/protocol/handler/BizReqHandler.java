@@ -38,6 +38,7 @@ public class BizReqHandler extends ChannelInboundHandlerAdapter {
                 while (true) {
                     msg = sendQueue.take();
                     ctx.writeAndFlush(msg);
+                    msg = null;
                 }
             } catch (Exception e) {
                 if (msg != null) {
