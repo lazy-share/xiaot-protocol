@@ -86,7 +86,7 @@ public class XiaotClient {
                                     //业务请求处理器
                                     .addLast("BizReqHandler", new BizReqHandler(sendQueue))
                                     //末尾处理器
-//                                    .addLast("TailHandler", new TailHandler())
+                                    .addLast("TailHandler", new TailHandler())
                             ;
                         }
                     });
