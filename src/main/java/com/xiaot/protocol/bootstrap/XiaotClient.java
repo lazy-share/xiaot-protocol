@@ -96,7 +96,7 @@ public class XiaotClient {
             try {
                 TimeUnit.SECONDS.sleep(5);
                 log.error("client connection time out, retry connection...");
-                if (channel != null && (channel.isActive() || channel.isOpen())) {
+                if (channel != null) {
                     channel.close();
                     channel = null;
                 }
