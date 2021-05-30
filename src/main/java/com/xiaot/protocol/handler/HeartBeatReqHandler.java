@@ -37,24 +37,23 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
         if (Command.HANDSHAKE_RESP.getVal() == receiveMsg.getHeader().getCommand()) {
             log.debug("client init heartbeat check schedule");
             scheduledFuture = ctx.executor().scheduleAtFixedRate(
-                    new HeartBeatTask(ctx), 0, 10, TimeUnit.SECONDS
+                    new HeartBeatTask(ctx), 0, 5, TimeUnit.SECONDS
             );
-            return;
-        }
 
+        }
         //接收到心跳应答，
-        if (Command.HEARTBEAT_RESP.getVal() == receiveMsg.getHeader().getCommand()) {
+        else if (Command.HEARTBEAT_RESP.getVal() == receiveMsg.getHeader().getCommand()) {
             log.debug("client receive heartbeat response");
-            return;
         }
-
-        //放过，进入pipeline下一个处理器
-        ctx.fireChannelRead(msg);
+        else {
+            //放过
+            ctx.fireChannelRead(msg);
+        }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (scheduledFuture != null){
+        if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
         ctx.fireExceptionCaught(cause);

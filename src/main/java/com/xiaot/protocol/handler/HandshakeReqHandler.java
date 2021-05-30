@@ -1,7 +1,6 @@
 package com.xiaot.protocol.handler;
 
 import com.xiaot.protocol.constant.Command;
-import com.xiaot.protocol.constant.Const;
 import com.xiaot.protocol.pojo.XiaotHeader;
 import com.xiaot.protocol.pojo.XiaotMessage;
 import com.xiaot.protocol.util.SidUtil;
@@ -22,6 +21,8 @@ public class HandshakeReqHandler extends ChannelInboundHandlerAdapter {
 
 
     /**
+     * 在连接通道channel激活时立即发送握手请求
+     *
      * @param ctx
      * @throws Exception
      */
@@ -34,6 +35,7 @@ public class HandshakeReqHandler extends ChannelInboundHandlerAdapter {
         sendMsg.setHeader(header);
         log.debug("client send handshake request...");
         ctx.writeAndFlush(sendMsg);
+        ctx.fireChannelActive();
     }
 
 
@@ -43,30 +45,13 @@ public class HandshakeReqHandler extends ChannelInboundHandlerAdapter {
         //类型转换
         XiaotMessage receiveMsg = (XiaotMessage) msg;
 
-        //参数检查
-        if (receiveMsg == null || receiveMsg.getHeader() == null) {
-            //放过，进入pipeline下一个处理器
-            ctx.fireChannelRead(msg);
-            return;
-        }
-
-        //检查指令，这里只处理握手应答指令
-        if (Command.HANDSHAKE_RESP.getVal() != receiveMsg.getHeader().getCommand()) {
-            ctx.fireChannelRead(msg);
-            return;
-        }
-
-        //检查应答标记位
-        int flag = (int) receiveMsg.getBody();
-        //
-        if (Const.SUCCESS == flag) {
+        //如果是握手应答指令，打印日志
+        if (receiveMsg != null && receiveMsg.getHeader() != null && Command.HANDSHAKE_RESP.getVal() == receiveMsg.getHeader().getCommand()) {
             log.debug("client receive handshake response...");
-            ctx.fireChannelRead(msg);
-        } else {
-            //关闭连接
-            ctx.close();
         }
 
+        //握手处理器只负责发送握手请求接口，接收并放过任何应答
+        ctx.fireChannelRead(msg);
     }
 
     @Override

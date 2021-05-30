@@ -21,20 +21,21 @@ public enum Command {
     ;
 
 
-    /**
-     * 1、ACK请求消息
-     * 2、ACK应答消息
-     * 3、业务请求消息
-     * 4、业务应答消息
-     * 5、心跳请求消息
-     * 6、心跳应答消息
-     */
     private char val;
     private String desc;
 
     Command(char val, String desc) {
         this.val = val;
         this.desc = desc;
+    }
+
+    public static Command of(char val){
+        for (Command value : Command.values()) {
+            if (value.getVal() == val){
+                return value;
+            }
+        }
+        return null;
     }
 
     public char getVal() {
