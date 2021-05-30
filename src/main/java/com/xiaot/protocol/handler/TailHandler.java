@@ -5,6 +5,7 @@ import com.xiaot.protocol.constant.Command;
 import com.xiaot.protocol.pojo.XiaotMessage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -29,6 +30,7 @@ public class TailHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         }
+
     }
 
     @Override

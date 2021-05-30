@@ -64,9 +64,8 @@ public class BizReqHandler extends ChannelInboundHandlerAdapter {
             for (XiaotBizReqCallbackProvide service : loader) {
                 service.execute(receiveMsg.getBody(), ctx);
             }
-        } else {
-            ctx.fireChannelRead(msg);
         }
+        ctx.fireChannelRead(msg);
     }
 
     @Override

@@ -14,9 +14,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -70,7 +68,7 @@ public class XiaotClient {
             bootstrap.group(group).channel(NioSocketChannel.class)
                     //禁用nagle算法.tips:Nagle算法就是为了尽可能发送大块数据，避免网络中充斥着许多小数据块。
                     .option(ChannelOption.TCP_NODELAY, Boolean.TRUE)
-                    .handler(new ReadTimeoutHandler(10,  TimeUnit.SECONDS))
+                    .handler(new ReadTimeoutHandler(10, TimeUnit.SECONDS))
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
@@ -93,10 +91,11 @@ public class XiaotClient {
             ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port)).sync();
             future.channel().closeFuture().sync();
         } catch (Exception e) {
-            log.error("client connection time out, retry connection...", e);
+            log.error(e.getMessage(), e);
         } finally {
             try {
                 TimeUnit.SECONDS.sleep(5);
+                log.error("client connection time out, retry connection...");
                 if (channel != null && (channel.isActive() || channel.isOpen())) {
                     channel.close();
                     channel = null;

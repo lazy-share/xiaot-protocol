@@ -1,6 +1,7 @@
 package com.xiaot.protocol.handler;
 
 import com.xiaot.protocol.constant.Command;
+import com.xiaot.protocol.constant.Const;
 import com.xiaot.protocol.pojo.XiaotHeader;
 import com.xiaot.protocol.pojo.XiaotMessage;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,26 +24,22 @@ public class HeartBeatRespHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         XiaotMessage receiveMsg = (XiaotMessage) msg;
         //参数检查
-        if (receiveMsg == null || receiveMsg.getHeader() == null) {
-            //放过，进入pipeline下一个处理器
-            ctx.fireChannelRead(msg);
-            return;
+        if (receiveMsg != null && receiveMsg.getHeader() != null) {
+            //接收到心跳请求，
+            if (Command.HEARTBEAT_REQ.getVal() == receiveMsg.getHeader().getCommand()) {
+                log.debug("server receive heartbeat request");
+                //应答心跳请求
+                XiaotMessage sendMsg = new XiaotMessage();
+                XiaotHeader header = new XiaotHeader();
+                header.setCommand(Command.HEARTBEAT_RESP.getVal());
+                header.setSuccess(Const.SUCCESS);
+                sendMsg.setHeader(header);
+                ctx.writeAndFlush(sendMsg);
+                log.debug("server send heartbeat response");
+            }
         }
 
-        //接收到非心跳请求，放过，进入pipeline下一个处理器
-        if (Command.HEARTBEAT_REQ.getVal() != receiveMsg.getHeader().getCommand()) {
-            //放过，进入pipeline下一个处理器
-            ctx.fireChannelRead(msg);
-            return;
-        }
-        log.debug("server receive heartbeat request");
-        //应答心跳请求
-        XiaotMessage sendMsg = new XiaotMessage();
-        XiaotHeader header = new XiaotHeader();
-        header.setCommand(Command.HEARTBEAT_RESP.getVal());
-        sendMsg.setHeader(header);
-        ctx.writeAndFlush(sendMsg);
-        log.debug("server send heartbeat response");
+        ctx.fireChannelRead(msg);
     }
 
 

@@ -13,6 +13,6 @@ import com.xiaot.protocol.pojo.XiaotSecurity;
 public interface XiaotSecurityAuthProvide {
 
 
-    boolean isAllow(XiaotSecurity security);
+    String isAllow(XiaotSecurity security);
 
 }

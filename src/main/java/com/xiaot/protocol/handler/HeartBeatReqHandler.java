@@ -1,6 +1,7 @@
 package com.xiaot.protocol.handler;
 
 import com.xiaot.protocol.constant.Command;
+import com.xiaot.protocol.constant.Const;
 import com.xiaot.protocol.pojo.XiaotHeader;
 import com.xiaot.protocol.pojo.XiaotMessage;
 import io.netty.channel.ChannelHandlerContext;
@@ -27,28 +28,25 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         XiaotMessage receiveMsg = (XiaotMessage) msg;
         //参数检查
-        if (receiveMsg == null || receiveMsg.getHeader() == null) {
-            //放过，进入pipeline下一个处理器
-            ctx.fireChannelRead(msg);
-            return;
-        }
+        if (receiveMsg != null && receiveMsg.getHeader() != null) {
 
-        //接收到握手成功应答，初始化心跳检查后台任务
-        if (Command.HANDSHAKE_RESP.getVal() == receiveMsg.getHeader().getCommand()) {
-            log.debug("client init heartbeat check schedule");
-            scheduledFuture = ctx.executor().scheduleAtFixedRate(
-                    new HeartBeatTask(ctx), 0, 5, TimeUnit.SECONDS
-            );
+            if (Command.HANDSHAKE_RESP.getVal() == receiveMsg.getHeader().getCommand()) {
+                //接收到握手成功应答，初始化心跳检查后台任务
+                if (Const.SUCCESS == receiveMsg.getHeader().getSuccess()) {
+                    log.debug("client init heartbeat task");
+                    scheduledFuture = ctx.executor().scheduleAtFixedRate(
+                            new HeartBeatTask(ctx), 0, 5, TimeUnit.SECONDS
+                    );
+                }
+            }
 
+            //接收到心跳应答，
+            else if (Command.HEARTBEAT_RESP.getVal() == receiveMsg.getHeader().getCommand()) {
+                log.debug("client receive heartbeat response");
+            }
         }
-        //接收到心跳应答，
-        else if (Command.HEARTBEAT_RESP.getVal() == receiveMsg.getHeader().getCommand()) {
-            log.debug("client receive heartbeat response");
-        }
-        else {
-            //放过
-            ctx.fireChannelRead(msg);
-        }
+        //放过
+        ctx.fireChannelRead(msg);
     }
 
     @Override

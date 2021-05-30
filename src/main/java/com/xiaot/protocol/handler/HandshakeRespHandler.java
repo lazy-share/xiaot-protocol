@@ -1,6 +1,5 @@
 package com.xiaot.protocol.handler;
 
-import com.alibaba.fastjson.JSON;
 import com.xiaot.protocol.constant.Command;
 import com.xiaot.protocol.constant.Const;
 import com.xiaot.protocol.custom.XiaotSecurityAuthProvide;
@@ -33,60 +32,66 @@ public class HandshakeRespHandler extends ChannelInboundHandlerAdapter {
         XiaotMessage receiveMsg = (XiaotMessage) msg;
 
         //参数检查
-        if (receiveMsg == null || receiveMsg.getHeader() == null){
-            //放过，进入pipeline下一个处理器
-            ctx.fireChannelRead(msg);
-            return;
-        }
-
-        //检查指令，这里只处理握手请求指令
-        if (Command.HANDSHAKE_REQ.getVal() != receiveMsg.getHeader().getCommand()) {
-            ctx.fireChannelRead(msg);
-            return;
-        }
-
-        //检查协议魔数
-        if (Const.MAJOR != receiveMsg.getHeader().getMajor()) {
-            log.error("xiaot protocol major check fail");
-            ctx.close();
-            return;
-        }
-
-        //检查主版本
-        if (Const.MAIN_VERSION != receiveMsg.getHeader().getMainVersion()) {
-            log.error("xiaot protocol main version check fail");
-            ctx.close();
-            return;
-        }
-
-        //检查次版本
-        if (Const.MINOR_VERSION != receiveMsg.getHeader().getMinorVersion()) {
-            log.error("xiaot protocol minor version check fail");
-            ctx.close();
-            return;
-        }
-
-        //安全认证
-        XiaotSecurity security = new XiaotSecurity();
-        security.setHeader(receiveMsg.getHeader());
-        security.setRemoteAddress((InetSocketAddress) ctx.channel().remoteAddress());
-        ServiceLoader<XiaotSecurityAuthProvide> loader = ServiceLoader.load(XiaotSecurityAuthProvide.class);
-        for (XiaotSecurityAuthProvide service : loader) {
-            if (!service.isAllow(security)) {
-                log.error("xiaot protocol security auth fail");
-                ctx.close();
+        if (receiveMsg != null && receiveMsg.getHeader() != null && Command.HANDSHAKE_REQ.getVal() == receiveMsg.getHeader().getCommand()) {
+            //检查协议魔数
+            if (Const.MAJOR != receiveMsg.getHeader().getMajor()) {
+                ctx.writeAndFlush(buildFailMessage("xiaot protocol major check fail，" + receiveMsg.getHeader().getMajor()));
                 return;
             }
+
+            //检查主版本
+            else if (Const.MAIN_VERSION != receiveMsg.getHeader().getMainVersion()) {
+                ctx.writeAndFlush(buildFailMessage("xiaot protocol main version check fail，" + receiveMsg.getHeader().getMainVersion()));
+            }
+
+            //检查次版本
+            else if (Const.MINOR_VERSION != receiveMsg.getHeader().getMinorVersion()) {
+                ctx.writeAndFlush(buildFailMessage("xiaot protocol minor version check fail，" + receiveMsg.getHeader().getMinorVersion()));
+            }
+
+            //安全认证 || 握手应答
+            else {
+
+                XiaotSecurity security = new XiaotSecurity();
+                security.setHeader(receiveMsg.getHeader());
+                security.setRemoteAddress((InetSocketAddress) ctx.channel().remoteAddress());
+                ServiceLoader<XiaotSecurityAuthProvide> loader = ServiceLoader.load(XiaotSecurityAuthProvide.class);
+                boolean isOk = true;
+                for (XiaotSecurityAuthProvide service : loader) {
+                    String errorMsg = service.isAllow(security);
+                    if (errorMsg != null) {
+                        isOk = false;
+                        ctx.writeAndFlush(buildFailMessage("xiaot protocol security check fail, " + errorMsg));
+                        break;
+                    }
+                }
+
+                if (isOk) {
+                    log.debug("server receive handshake request...");
+                    //应答握手
+                    XiaotMessage respMsg = new XiaotMessage();
+                    XiaotHeader respHeader = new XiaotHeader();
+                    respHeader.setSuccess(Const.SUCCESS);
+                    respHeader.setCommand(Command.HANDSHAKE_RESP.getVal());
+                    respMsg.setHeader(respHeader);
+                    ctx.writeAndFlush(respMsg);
+                    log.debug("server send handshake response...");
+                }
+            }
         }
-        log.debug("server receive handshake request...");
-        //应答握手
+
+        ctx.fireChannelRead(msg);
+    }
+
+    private XiaotMessage buildFailMessage(String body) {
         XiaotMessage respMsg = new XiaotMessage();
         XiaotHeader respHeader = new XiaotHeader();
         respHeader.setCommand(Command.HANDSHAKE_RESP.getVal());
+        respHeader.setSuccess(Const.FAIL);
         respMsg.setHeader(respHeader);
-        respMsg.setBody(Const.SUCCESS);
-        ctx.writeAndFlush(respMsg);
-        log.debug("server send handshake response...");
+        respMsg.setBody(body);
+        log.error(body);
+        return respMsg;
     }
 
     @Override

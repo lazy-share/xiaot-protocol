@@ -14,7 +14,7 @@ import com.xiaot.protocol.pojo.XiaotSecurity;
 public class DefaultXiaotSecurityAuthProvide implements XiaotSecurityAuthProvide {
 
     @Override
-    public boolean isAllow(XiaotSecurity security) {
-        return true;
+    public String isAllow(XiaotSecurity security) {
+        return null;
     }
 }

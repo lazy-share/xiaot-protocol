@@ -33,8 +33,7 @@ public class BizRespHandler extends ChannelInboundHandlerAdapter {
             for (XiaotBizRespCallbackProvide service : loader) {
                 service.execute(receiveMsg.getBody(), ctx);
             }
-        } else {
-            ctx.fireChannelRead(msg);
         }
+        ctx.fireChannelRead(msg);
     }
 }

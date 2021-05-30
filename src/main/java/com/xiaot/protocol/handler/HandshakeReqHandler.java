@@ -1,6 +1,7 @@
 package com.xiaot.protocol.handler;
 
 import com.xiaot.protocol.constant.Command;
+import com.xiaot.protocol.constant.Const;
 import com.xiaot.protocol.pojo.XiaotHeader;
 import com.xiaot.protocol.pojo.XiaotMessage;
 import com.xiaot.protocol.util.SidUtil;
@@ -45,18 +46,21 @@ public class HandshakeReqHandler extends ChannelInboundHandlerAdapter {
         //类型转换
         XiaotMessage receiveMsg = (XiaotMessage) msg;
 
-        //如果是握手应答指令，打印日志
+        //处理握手应答指令
         if (receiveMsg != null && receiveMsg.getHeader() != null && Command.HANDSHAKE_RESP.getVal() == receiveMsg.getHeader().getCommand()) {
-            log.debug("client receive handshake response...");
+            if (Const.SUCCESS == receiveMsg.getHeader().getSuccess()) {
+                log.debug("client receive handshake response");
+            } else {
+                log.error("client receive handshake response fail " + (receiveMsg.getBody() == null ? "" : (String) receiveMsg.getBody()));
+                ctx.close();
+            }
         }
-
-        //握手处理器只负责发送握手请求接口，接收并放过任何应答
+        //只有成功才继续往下流转
         ctx.fireChannelRead(msg);
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error(cause.getMessage(), cause);
         ctx.fireExceptionCaught(cause);
     }
 }

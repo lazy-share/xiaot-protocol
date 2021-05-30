@@ -42,6 +42,10 @@ public class XiaotHeader {
      */
     private char command;
     /**
+     * 是否成功  1：成功，0：失败
+     */
+    private int success;
+    /**
      * 消息头扩展属性
      */
     private Map<String, Object> attribute = new HashMap<>();
