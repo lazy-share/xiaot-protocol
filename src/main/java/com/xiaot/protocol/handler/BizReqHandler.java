@@ -62,7 +62,7 @@ public class BizReqHandler extends ChannelInboundHandlerAdapter {
             log.debug("client receive biz response: {}", JSONObject.toJSONString(receiveMsg));
             ServiceLoader<XiaotBizReqCallbackProvide> loader = ServiceLoader.load(XiaotBizReqCallbackProvide.class);
             for (XiaotBizReqCallbackProvide service : loader) {
-                service.execute(receiveMsg.getBody(), ctx);
+                service.execute(receiveMsg.getBody(), receiveMsg.getHeader().getAttribute(), ctx);
             }
         }
         ctx.fireChannelRead(msg);
@@ -70,7 +70,7 @@ public class BizReqHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (thread != null){
+        if (thread != null) {
             thread.interrupt();
         }
         ctx.fireExceptionCaught(cause);

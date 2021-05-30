@@ -3,6 +3,8 @@ package com.xiaot.protocol.custom;
 import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelHandlerContext;
 
+import java.util.Map;
+
 /**
  * <p>
  *
@@ -14,6 +16,6 @@ import io.netty.channel.ChannelHandlerContext;
 public interface XiaotBizRespCallbackProvide {
 
 
-    void execute(Object body, ChannelHandlerContext ctx);
+    void execute(Object body, Map<String, Object> headerMap, ChannelHandlerContext ctx);
 
 }

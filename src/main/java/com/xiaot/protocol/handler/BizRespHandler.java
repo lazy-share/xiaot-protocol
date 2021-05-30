@@ -31,7 +31,7 @@ public class BizRespHandler extends ChannelInboundHandlerAdapter {
             log.debug("server receive biz request: {}", JSONObject.toJSONString(receiveMsg));
             ServiceLoader<XiaotBizRespCallbackProvide> loader = ServiceLoader.load(XiaotBizRespCallbackProvide.class);
             for (XiaotBizRespCallbackProvide service : loader) {
-                service.execute(receiveMsg.getBody(), ctx);
+                service.execute(receiveMsg.getBody(), receiveMsg.getHeader().getAttribute(), ctx);
             }
         }
         ctx.fireChannelRead(msg);
