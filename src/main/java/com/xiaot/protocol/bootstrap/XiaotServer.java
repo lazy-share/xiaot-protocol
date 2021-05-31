@@ -75,4 +75,7 @@ public class XiaotServer {
     }
 
 
+    public static void main(String[] args) throws Exception {
+        new XiaotServer().bind(9000);
+    }
 }

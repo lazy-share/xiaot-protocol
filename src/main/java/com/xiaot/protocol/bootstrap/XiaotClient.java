@@ -67,6 +67,8 @@ public class XiaotClient {
             bootstrap.group(group).channel(NioSocketChannel.class)
                     //禁用nagle算法.tips:Nagle算法就是为了尽可能发送大块数据，避免网络中充斥着许多小数据块。
                     .option(ChannelOption.TCP_NODELAY, Boolean.TRUE)
+                    //配置buffer水位线 1m
+                    .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(1024 * 1024, 1024 * 1024))
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
