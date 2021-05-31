@@ -6,6 +6,9 @@ import com.xiaot.protocol.custom.XiaotBizReqCallbackProvide;
 import com.xiaot.protocol.pojo.XiaotMessage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelPromise;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ServiceLoader;
@@ -37,7 +40,9 @@ public class BizReqHandler extends ChannelInboundHandlerAdapter {
             try {
                 while (true) {
                     msg = sendQueue.take();
-                    ctx.writeAndFlush(msg);
+                    if (ctx.channel().isWritable()){
+                        ctx.channel().writeAndFlush(msg);
+                    }
                     msg = null;
                 }
             } catch (Exception e) {
@@ -72,7 +77,7 @@ public class BizReqHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (thread != null) {
-            thread.interrupt();
+//            thread.interrupt();
         }
         ctx.fireExceptionCaught(cause);
     }

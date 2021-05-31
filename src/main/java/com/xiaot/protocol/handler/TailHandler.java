@@ -22,13 +22,17 @@ public class TailHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         //
-        if (msg != null) {
-            XiaotMessage message = (XiaotMessage) msg;
-            if (message.getHeader() != null) {
-                if (Command.of(message.getHeader().getCommand()) == null) {
-                    log.error("receive be not illegal command message: " + JSONObject.toJSONString(message));
+        try {
+            if (msg != null) {
+                XiaotMessage message = (XiaotMessage) msg;
+                if (message.getHeader() != null) {
+                    if (Command.of(message.getHeader().getCommand()) == null) {
+                        log.error("receive be not illegal command message: " + JSONObject.toJSONString(message));
+                    }
                 }
             }
+        } finally {
+            ReferenceCountUtil.release(msg);
         }
 
     }
