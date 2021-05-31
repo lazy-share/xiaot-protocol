@@ -6,8 +6,11 @@ import com.xiaot.protocol.custom.XiaotSecurityAuthProvide;
 import com.xiaot.protocol.pojo.XiaotHeader;
 import com.xiaot.protocol.pojo.XiaotMessage;
 import com.xiaot.protocol.pojo.XiaotSecurity;
+import com.xiaot.protocol.util.ChannelWriteUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
@@ -35,18 +38,18 @@ public class HandshakeRespHandler extends ChannelInboundHandlerAdapter {
         if (receiveMsg != null && receiveMsg.getHeader() != null && Command.HANDSHAKE_REQ.getVal() == receiveMsg.getHeader().getCommand()) {
             //检查协议魔数
             if (Const.MAJOR != receiveMsg.getHeader().getMajor()) {
-                ctx.writeAndFlush(buildFailMessage("xiaot protocol major check fail，" + receiveMsg.getHeader().getMajor()));
+                ChannelWriteUtil.write(ctx.channel(), buildFailMessage("xiaot protocol major check fail，" + receiveMsg.getHeader().getMajor()));
                 return;
             }
 
             //检查主版本
             else if (Const.MAIN_VERSION != receiveMsg.getHeader().getMainVersion()) {
-                ctx.writeAndFlush(buildFailMessage("xiaot protocol main version check fail，" + receiveMsg.getHeader().getMainVersion()));
+                ChannelWriteUtil.write(ctx.channel(), buildFailMessage("xiaot protocol main version check fail，" + receiveMsg.getHeader().getMainVersion()));
             }
 
             //检查次版本
             else if (Const.MINOR_VERSION != receiveMsg.getHeader().getMinorVersion()) {
-                ctx.writeAndFlush(buildFailMessage("xiaot protocol minor version check fail，" + receiveMsg.getHeader().getMinorVersion()));
+                ChannelWriteUtil.write(ctx.channel(), buildFailMessage("xiaot protocol minor version check fail，" + receiveMsg.getHeader().getMinorVersion()));
             }
 
             //安全认证 || 握手应答
@@ -61,7 +64,7 @@ public class HandshakeRespHandler extends ChannelInboundHandlerAdapter {
                     String errorMsg = service.isAllow(security);
                     if (errorMsg != null) {
                         isOk = false;
-                        ctx.writeAndFlush(buildFailMessage("xiaot protocol security check fail, " + errorMsg));
+                        ChannelWriteUtil.write(ctx.channel(), buildFailMessage("xiaot protocol security check fail, " + errorMsg));
                         break;
                     }
                 }
@@ -74,8 +77,16 @@ public class HandshakeRespHandler extends ChannelInboundHandlerAdapter {
                     respHeader.setSuccess(Const.SUCCESS);
                     respHeader.setCommand(Command.HANDSHAKE_RESP.getVal());
                     respMsg.setHeader(respHeader);
-                    ctx.writeAndFlush(respMsg);
-                    log.debug("server send handshake response...");
+                    ChannelWriteUtil.write(ctx.channel(), respMsg, new GenericFutureListener<Future<? super Void>>() {
+                        @Override
+                        public void operationComplete(Future<? super Void> future) throws Exception {
+                            if (future.isSuccess()) {
+                                log.debug("server send handshake response");
+                            } else {
+                                log.error("server send handshake response fail...", future.cause());
+                            }
+                        }
+                    });
                 }
             }
         }

@@ -9,12 +9,13 @@ import com.xiaot.protocol.handler.HeartBeatReqHandler;
 import com.xiaot.protocol.handler.TailHandler;
 import com.xiaot.protocol.pojo.XiaotHeader;
 import com.xiaot.protocol.pojo.XiaotMessage;
+import com.xiaot.protocol.util.ChannelWriteUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.timeout.IdleStateHandler;
+import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
@@ -70,7 +71,8 @@ public class XiaotClient {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline()
-                                    .addLast("IdleStateHandler", new IdleStateHandler(5, 5, 10, TimeUnit.SECONDS))
+                                    //读超时
+                                    .addLast(new ReadTimeoutHandler(30, TimeUnit.SECONDS))
                                     //消息解码器
                                     .addLast("XiaotMessageDecoder", new XiaotMessageDecoder(1024 * 1024, 0, 4))
                                     //消息编码器
@@ -137,6 +139,7 @@ public class XiaotClient {
                             Map<String, Object> headerMap,
                             GenericFutureListener<? extends Future<? super Void>> futureListener) throws Exception {
 
+
         XiaotMessage message = new XiaotMessage();
         XiaotHeader header = new XiaotHeader();
         header.setCommand(Command.BIZ_REQ.getVal());
@@ -145,10 +148,8 @@ public class XiaotClient {
         }
         message.setBody(body);
         message.setHeader(header);
-        ChannelFuture future = channel.writeAndFlush(message);
-        if (futureListener != null) {
-            future.addListener(futureListener);
-        }
+
+        ChannelWriteUtil.write(channel, message, futureListener);
     }
 
 }

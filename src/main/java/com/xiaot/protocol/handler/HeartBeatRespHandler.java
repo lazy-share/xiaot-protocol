@@ -4,6 +4,7 @@ import com.xiaot.protocol.constant.Command;
 import com.xiaot.protocol.constant.Const;
 import com.xiaot.protocol.pojo.XiaotHeader;
 import com.xiaot.protocol.pojo.XiaotMessage;
+import com.xiaot.protocol.util.ChannelWriteUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +35,13 @@ public class HeartBeatRespHandler extends ChannelInboundHandlerAdapter {
                 header.setCommand(Command.HEARTBEAT_RESP.getVal());
                 header.setSuccess(Const.SUCCESS);
                 sendMsg.setHeader(header);
-                ctx.writeAndFlush(sendMsg);
-                log.debug("server send heartbeat response");
+                ChannelWriteUtil.write(ctx.channel(), sendMsg, future -> {
+                    if (future.isSuccess()) {
+                        log.debug("server send heartbeat response");
+                    } else {
+                        log.error("server send heartbeat response fail..", future.cause());
+                    }
+                });
             }
         }
 

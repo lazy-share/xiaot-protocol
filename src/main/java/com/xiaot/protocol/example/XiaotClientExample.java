@@ -31,9 +31,9 @@ public class XiaotClientExample {
                             @Override
                             public void operationComplete(Future<? super Void> future) throws Exception {
                                 if (future.isSuccess()) {
-                                    log.info("send success...");
+//                                    log.info("send success...");
                                 } else {
-                                    log.error("send fail...");
+                                    log.error("send fail...", future.cause());
                                 }
                             }
                         });

@@ -4,10 +4,13 @@ import com.xiaot.protocol.constant.Command;
 import com.xiaot.protocol.constant.Const;
 import com.xiaot.protocol.pojo.XiaotHeader;
 import com.xiaot.protocol.pojo.XiaotMessage;
+import com.xiaot.protocol.util.ChannelWriteUtil;
 import com.xiaot.protocol.util.SidUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.IOException;
 
 /**
  * <p>
@@ -34,9 +37,15 @@ public class HandshakeReqHandler extends ChannelInboundHandlerAdapter {
         header.setSid(SidUtil.INSTANCE.nextId());
         XiaotMessage sendMsg = new XiaotMessage();
         sendMsg.setHeader(header);
-        log.debug("client send handshake request...");
-        ctx.writeAndFlush(sendMsg);
-        ctx.fireChannelActive();
+        ChannelWriteUtil.write(ctx.channel(), sendMsg, future -> {
+            if (future.cause() != null) {
+                throw new IOException(future.cause());
+            } else if (!future.isSuccess()) {
+                throw new IOException("client send handshake request fail...");
+            } else {
+                log.debug("client send handshake request");
+            }
+        });
     }
 
 
