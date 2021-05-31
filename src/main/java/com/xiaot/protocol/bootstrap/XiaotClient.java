@@ -111,6 +111,24 @@ public class XiaotClient {
      *
      * @param body 消息体
      */
+    public void sendMessage(Object body) throws Exception {
+        this.sendMessage(body, null, null);
+    }
+
+    /**
+     * 发送消息
+     *
+     * @param body 消息体
+     */
+    public void sendMessage(Object body, Map<String, Object> headerMap) throws Exception {
+        this.sendMessage(body, headerMap, null);
+    }
+
+    /**
+     * 发送消息
+     *
+     * @param body 消息体
+     */
     public void sendMessage(Object body,
                                      Map<String, Object> headerMap,
                                      GenericFutureListener<? extends Future<? super Void>> futureListener) throws Exception {
