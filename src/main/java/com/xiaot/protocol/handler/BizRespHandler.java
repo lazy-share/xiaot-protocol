@@ -28,7 +28,7 @@ public class BizRespHandler extends ChannelInboundHandlerAdapter {
 
         //业务应答指令
         if (receiveMsg != null && receiveMsg.getHeader() != null && Command.BIZ_REQ.getVal() == receiveMsg.getHeader().getCommand()) {
-            log.debug("server receive biz request: {}", JSONObject.toJSONString(receiveMsg));
+            log.debug("server receive biz data : {}", JSONObject.toJSONString(receiveMsg));
             ServiceLoader<XiaotBizRespCallbackProvide> loader = ServiceLoader.load(XiaotBizRespCallbackProvide.class);
             for (XiaotBizRespCallbackProvide service : loader) {
                 service.execute(receiveMsg.getBody(), receiveMsg.getHeader().getAttribute(), ctx);

@@ -14,7 +14,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.util.ResourceLeakDetector;
 import lombok.extern.slf4j.Slf4j;
 
@@ -61,10 +60,10 @@ public class XiaotServer {
                                 .addLast("XiaotMessageEncoder", new XiaotMessageEncoder())
                                 //握手应答处理器
                                 .addLast("HandshakeRespHandler", new HandshakeRespHandler())
-                                //业务请求处理器
-                                .addLast("BizRespHandler", new BizRespHandler())
                                 //心跳应答处理器
                                 .addLast("HeartBeatRespHandler", new HeartBeatRespHandler())
+                                //业务应答处理器
+                                .addLast("BizRespHandler", new BizRespHandler())
                                 //末尾处理器
                                 .addLast("TailHandler", new TailHandler())
                         ;

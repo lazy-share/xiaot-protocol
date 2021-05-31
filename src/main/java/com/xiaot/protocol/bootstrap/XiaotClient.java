@@ -3,6 +3,7 @@ package com.xiaot.protocol.bootstrap;
 import com.xiaot.protocol.codec.XiaotMessageDecoder;
 import com.xiaot.protocol.codec.XiaotMessageEncoder;
 import com.xiaot.protocol.constant.Command;
+import com.xiaot.protocol.handler.BizRespHandler;
 import com.xiaot.protocol.handler.HandshakeReqHandler;
 import com.xiaot.protocol.handler.HeartBeatReqHandler;
 import com.xiaot.protocol.handler.TailHandler;
@@ -78,11 +79,14 @@ public class XiaotClient {
                                     .addLast("HandshakeReqHandler", new HandshakeReqHandler())
                                     //心跳请求处理器
                                     .addLast("HeartBeatReqHandler", new HeartBeatReqHandler())
+                                    //业务应答处理器
+                                    .addLast("BizRespHandler", new BizRespHandler())
                                     //末尾处理器
                                     .addLast("TailHandler", new TailHandler())
                             ;
                         }
                     });
+            //打印资源泄露日志
             ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
             ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port)).sync();
             log.info("Xiaot Protocol Client Connection Server Success.");
@@ -130,16 +134,15 @@ public class XiaotClient {
      * @param body 消息体
      */
     public void sendMessage(Object body,
-                                     Map<String, Object> headerMap,
-                                     GenericFutureListener<? extends Future<? super Void>> futureListener) throws Exception {
+                            Map<String, Object> headerMap,
+                            GenericFutureListener<? extends Future<? super Void>> futureListener) throws Exception {
 
-        if (channel == null || !channel.isWritable()) {
-            throw new ChannelException("channel be not writable...");
-        }
         XiaotMessage message = new XiaotMessage();
         XiaotHeader header = new XiaotHeader();
         header.setCommand(Command.BIZ_REQ.getVal());
-        header.setAttribute(headerMap);
+        if (headerMap != null) {
+            header.setAttribute(headerMap);
+        }
         message.setBody(body);
         message.setHeader(header);
         ChannelFuture future = channel.writeAndFlush(message);

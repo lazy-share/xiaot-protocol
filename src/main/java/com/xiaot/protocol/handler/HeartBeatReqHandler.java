@@ -52,7 +52,7 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (scheduledFuture != null) {
-            scheduledFuture.cancel(true);
+            scheduledFuture.cancel(false);
             ctx.executor().terminationFuture();
         }
         ctx.fireExceptionCaught(cause);
