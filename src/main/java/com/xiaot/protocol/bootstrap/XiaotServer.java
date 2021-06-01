@@ -53,7 +53,6 @@ public class XiaotServer {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         socketChannel.pipeline()
-                                .addLast("IdleStateHandler", new IdleStateHandler(5, 5, 10, TimeUnit.SECONDS))
                                 //消息解码器，继承LengthFieldBasedFrameDecoder可以处理TCP粘包/拆包问题
                                 .addLast("XiaotMessageDecoder", new XiaotMessageDecoder(1024 * 1024, 0, 4))
                                 //消息编码器
