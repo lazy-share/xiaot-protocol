@@ -48,5 +48,4 @@ public class HeartBeatRespHandler extends ChannelInboundHandlerAdapter {
         ctx.fireChannelRead(msg);
     }
 
-
 }

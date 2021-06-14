@@ -58,6 +58,7 @@ public class HandshakeRespHandler extends ChannelInboundHandlerAdapter {
                 XiaotSecurity security = new XiaotSecurity();
                 security.setHeader(receiveMsg.getHeader());
                 security.setRemoteAddress((InetSocketAddress) ctx.channel().remoteAddress());
+                //基于JDK自带SPI技术实现安全认证
                 ServiceLoader<XiaotSecurityAuthProvide> loader = ServiceLoader.load(XiaotSecurityAuthProvide.class);
                 boolean isOk = true;
                 for (XiaotSecurityAuthProvide service : loader) {

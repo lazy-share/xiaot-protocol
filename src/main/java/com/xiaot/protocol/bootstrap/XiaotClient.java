@@ -44,6 +44,7 @@ public class XiaotClient {
     private volatile boolean init = false;
 
     public XiaotClient(String host, int port) {
+        //实例化客户端时启动异步线程向服务端请求连接
         new Thread(() -> connection(host, port)).start();
     }
 
@@ -65,7 +66,7 @@ public class XiaotClient {
 
         try {
             bootstrap.group(group).channel(NioSocketChannel.class)
-                    //禁用nagle算法.tips:Nagle算法就是为了尽可能发送大块数据，避免网络中充斥着许多小数据块。
+                    //禁用nagle算法。
                     .option(ChannelOption.TCP_NODELAY, Boolean.TRUE)
                     //配置buffer水位线 1m
 //                    .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(1024 * 1024, 1024 * 1024))
@@ -73,9 +74,12 @@ public class XiaotClient {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
                             socketChannel.pipeline()
-                                    //读超时
+                                    //读超时，当超过30s未接收到服务端任何应答（包括心跳应答）时，将断开连接进行重试任务。
                                     .addLast(new ReadTimeoutHandler(30, TimeUnit.SECONDS))
-                                    //消息解码器
+                                    //消息解码器，继承自LengthFieldBasedFrameDecoder解决了TCP粘包和拆包问题
+                                    //第一个参数表示消息最大大小，这里设置较大一个值。
+                                    //第二个参数表示消息头的偏移位置，这里设置为0表示不偏移。
+                                    //第三个参数表示消息长度占用的字节大小，这边设置为4，对应编码器的writeInt(xxx)
                                     .addLast("XiaotMessageDecoder", new XiaotMessageDecoder(1024 * 1024, 0, 4))
                                     //消息编码器
                                     .addLast("XiaotMessageEncoder", new XiaotMessageEncoder())
@@ -99,6 +103,8 @@ public class XiaotClient {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         } finally {
+
+            // 下面是客户端断开连接后的重连任务
             try {
                 if (channel != null) {
                     channel.close();

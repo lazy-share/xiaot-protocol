@@ -7,8 +7,6 @@ import com.xiaot.protocol.pojo.XiaotMessage;
 import com.xiaot.protocol.util.ChannelWriteUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.ScheduledFuture;
 import lombok.extern.slf4j.Slf4j;
 
@@ -75,9 +73,9 @@ public class HeartBeatReqHandler extends ChannelInboundHandlerAdapter {
             header.setCommand(Command.HEARTBEAT_REQ.getVal());
             sendMsg.setHeader(header);
             ChannelWriteUtil.write(ctx.channel(), sendMsg, future -> {
-                if (future.isSuccess()){
+                if (future.isSuccess()) {
                     log.debug("client send heartbeat request");
-                }else {
+                } else {
                     log.error("client send heartbeat request fail...", future.cause());
                 }
             });

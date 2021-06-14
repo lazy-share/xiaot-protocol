@@ -1,6 +1,5 @@
 package com.xiaot.protocol.custom;
 
-import io.netty.channel.ChannelConfig;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.util.Map;

@@ -28,7 +28,8 @@ public class XiaotMessageEncoder extends MessageToByteEncoder<XiaotMessage> {
         //Serialize
         byte[] raw = JSONObject.toJSONString(message).getBytes(StandardCharsets.UTF_8);
         message.getHeader().setLength(raw.length);
-        //4byte
+        // 这里严格按照解码器TCP粘包和拆包解决方案要求格式进行编码
+        // writeInt表示往消息头写内容长度，占用空间是4个字节
         byteBuf.writeInt(message.getHeader().getLength());
         byteBuf.writeBytes(raw);
     }

@@ -26,6 +26,7 @@ public class XiaotMessageDecoder extends LengthFieldBasedFrameDecoder {
 
     @Override
     protected Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
+        //Netty处理粘包和拆包得到完整的消息包之后，会调用这里逻辑
         ByteBuf byteBuf = (ByteBuf) super.decode(ctx, in);
         if (byteBuf == null) {
             return null;
