@@ -13,6 +13,7 @@ import com.xiaot.protocol.bootstrap.XiaotServer;
 public class XiaotServerExample {
 
     public static void main(String[] args) throws Exception {
+        //通过本地main方法启动服务端
         new XiaotServer().bind(9000);
     }
 }

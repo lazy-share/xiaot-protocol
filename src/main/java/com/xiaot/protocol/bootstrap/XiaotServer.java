@@ -34,12 +34,13 @@ public class XiaotServer {
      */
     public void bind(int port) throws Exception {
 
-        //ReactSelect主线程组
+        //ReactSelect主线程组 boss线程池
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        //工作线程组
+        //work线程池
         EventLoopGroup workGroup = new NioEventLoopGroup();
-
+        //实例化引导启动类
         ServerBootstrap bootstrap = new ServerBootstrap();
+        //1、通过引导启动类传入TCP相关配置，2、通过引导启动类传入内部handler处理链配置
         bootstrap.group(bossGroup, workGroup)
                 .channel(NioServerSocketChannel.class)
                 // 当服务器请求处理线程全满时，用于临时存放已完成三次握手的请求的队列的最大长度
@@ -65,13 +66,11 @@ public class XiaotServer {
                         ;
                     }
                 });
+        //资源泄露监控日志级别
         ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
         bootstrap.bind(port).sync();
         log.info("Xiaot Server Start on port: " + port);
     }
 
 
-    public static void main(String[] args) throws Exception {
-        new XiaotServer().bind(9000);
-    }
 }

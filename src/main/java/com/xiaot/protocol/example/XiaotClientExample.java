@@ -24,9 +24,9 @@ public class XiaotClientExample {
         XiaotClient client = new XiaotClient("localhost", 9000);
 
         //客户端启动三条线程同时通过小T协议客户端向服务端发送数据
-        new Thread(new Work(client, 20)).start();
-        new Thread(new Work(client, 30)).start();
-        new Thread(new Work(client, 50)).start();
+//        new Thread(new Work(client, 20)).start();
+//        new Thread(new Work(client, 30)).start();
+//        new Thread(new Work(client, 50)).start();
 
         //阻塞主线程
         TimeUnit.HOURS.sleep(10000);

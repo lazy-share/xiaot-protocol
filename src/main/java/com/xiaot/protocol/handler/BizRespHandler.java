@@ -2,7 +2,7 @@ package com.xiaot.protocol.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.xiaot.protocol.constant.Command;
-import com.xiaot.protocol.custom.XiaotBizRespCallbackProvide;
+import com.xiaot.protocol.custom.XiaotServerBizRespCallbackProvide;
 import com.xiaot.protocol.pojo.XiaotMessage;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -31,8 +31,8 @@ public class BizRespHandler extends ChannelInboundHandlerAdapter {
             log.debug("server receive biz data : {}", JSONObject.toJSONString(receiveMsg));
             //基于JDK自带的SPI技术实现协议业务处理的自定义扩展开发
             //默认将接收到的业务请求回调XiaotBizRespCallbackProvide接口execute方法
-            ServiceLoader<XiaotBizRespCallbackProvide> loader = ServiceLoader.load(XiaotBizRespCallbackProvide.class);
-            for (XiaotBizRespCallbackProvide service : loader) {
+            ServiceLoader<XiaotServerBizRespCallbackProvide> loader = ServiceLoader.load(XiaotServerBizRespCallbackProvide.class);
+            for (XiaotServerBizRespCallbackProvide service : loader) {
                 service.execute(receiveMsg.getBody(), receiveMsg.getHeader().getAttribute(), ctx);
             }
         }

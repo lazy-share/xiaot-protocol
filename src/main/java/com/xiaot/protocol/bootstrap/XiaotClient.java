@@ -56,10 +56,13 @@ public class XiaotClient {
      */
     public synchronized void connection(String host, int port) {
 
-        if (init) {
-            return;
+        synchronized (XiaotClient.class){
+            if (init) {
+                log.warn("already init.");
+                return;
+            }
+            init = true;
         }
-        init = true;
         //
         EventLoopGroup group = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap();

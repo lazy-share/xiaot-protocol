@@ -12,7 +12,7 @@ import java.util.Map;
  * @author lzy
  * @since 2021/5/30.
  */
-public interface XiaotBizRespCallbackProvide {
+public interface XiaotClientBizRespCallbackProvide {
 
 
     void execute(Object body, Map<String, Object> headerMap, ChannelHandlerContext ctx);
