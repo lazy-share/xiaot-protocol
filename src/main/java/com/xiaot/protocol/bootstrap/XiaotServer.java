@@ -2,7 +2,7 @@ package com.xiaot.protocol.bootstrap;
 
 import com.xiaot.protocol.codec.XiaotMessageDecoder;
 import com.xiaot.protocol.codec.XiaotMessageEncoder;
-import com.xiaot.protocol.handler.BizRespHandler;
+import com.xiaot.protocol.handler.BizReqHandler;
 import com.xiaot.protocol.handler.HandshakeRespHandler;
 import com.xiaot.protocol.handler.HeartBeatRespHandler;
 import com.xiaot.protocol.handler.TailHandler;
@@ -59,8 +59,8 @@ public class XiaotServer {
                                 .addLast("HandshakeRespHandler", new HandshakeRespHandler())
                                 //心跳应答处理器
                                 .addLast("HeartBeatRespHandler", new HeartBeatRespHandler())
-                                //业务应答处理器
-                                .addLast("BizRespHandler", new BizRespHandler())
+                                //业务请求处理器
+                                .addLast("BizReqHandler", new BizReqHandler())
                                 //末尾处理器
                                 .addLast("TailHandler", new TailHandler())
                         ;

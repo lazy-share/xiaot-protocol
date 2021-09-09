@@ -12,7 +12,8 @@ public enum Command {
 
     HANDSHAKE_REQ('1', "握手请求消息"),
     HANDSHAKE_RESP('2', "握手应答消息"),
-    BIZ_REQ('3', "业务消息"),
+    BIZ_REQ('3', "业务请求消息"),
+    BIZ_RESP('4', "业务应答消息"),
     HEARTBEAT_REQ('5', "心跳请求消息"),
     HEARTBEAT_RESP('6', "心跳应答消息"),
 
